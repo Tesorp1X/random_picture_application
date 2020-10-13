@@ -1,5 +1,6 @@
 package servlets;
 
+import dbService.DBException;
 import dbService.DBService;
 import dbService.dataSets.PicturesDataSet;
 
@@ -15,33 +16,49 @@ import java.util.Map;
 
 public class GetPictureServlet extends HttpServlet {
 
+    /**
+     * Handles GET requests and "returns" random picture link from sql.
+     * Used only to GET link.
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        Map<String, Object> pageVariables = createPageVariablesMap(request);
-
         DBService dbService = new DBService();
+        System.out.println("THIS IS doGet@GetPictureServlet !!!");
+        dbService.printConnectInfo();
 
-        PicturesDataSet dataSet = dbService.getPicture();
+        String link = "";
+
+        try {
+
+            PicturesDataSet dataSet = dbService.getRandomPicture();
 
 
-        response.setContentType("text/html;charset=utf-8");
+            if (dataSet == null) {
+
+                link = "none";
+
+            } else {
+
+                link = dataSet.getLink();
+            }
+
+
+        } catch (DBException e) {
+
+            e.printStackTrace();
+        }
+
+        response.getWriter().print(link);
+        response.setContentType("text/plain;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    
 
 
-    }
-
-    private static Map<String, Object> createPageVariablesMap(HttpServletRequest request) {
-
-        Map<String, Object> pageVariables = new HashMap<>();
-        pageVariables.put("method", request.getMethod());
-        pageVariables.put("URL", request.getRequestURL().toString());
-        pageVariables.put("pathInfo", request.getPathInfo());
-        pageVariables.put("sessionId", request.getSession().getId());
-        pageVariables.put("parameters", request.getParameterMap().toString());
-        return pageVariables;
-    }
 }

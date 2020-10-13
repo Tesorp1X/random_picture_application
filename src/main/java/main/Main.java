@@ -14,8 +14,8 @@ public class Main {
 
         GetPictureServlet getPictureServlet = new GetPictureServlet();
 
-        DBService dbService = new DBService();
-        dbService.printConnectInfo();
+        /*DBService dbService = new DBService();
+        dbService.printConnectInfo();*/
 
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
