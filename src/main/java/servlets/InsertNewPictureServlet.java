@@ -27,8 +27,11 @@ public class InsertNewPictureServlet extends HttpServlet{
         String link = request.getParameter("link");
         String tags = request.getParameter("tags");
 
+        response.setContentType("text/plain;charset=utf-8");
+        response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+
         if (link == null) {
-            response.setContentType("text/html;charset=utf-8");
+
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -47,7 +50,6 @@ public class InsertNewPictureServlet extends HttpServlet{
         }
 
 
-        response.setContentType("text/html;charset=utf-8");
 
         if (id_got != -1) {
 
