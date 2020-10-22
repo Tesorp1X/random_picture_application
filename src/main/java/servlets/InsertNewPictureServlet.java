@@ -3,6 +3,7 @@ package servlets;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.dataSets.PicturesDataSet;
+import org.apache.commons.validator.routines.UrlValidator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,7 +15,7 @@ import java.io.IOException;
 public class InsertNewPictureServlet extends HttpServlet{
 
     /**
-     *Handles PUT requests on /insertPicture with params link and tags.
+     *Handles GET requests on /insertPicture with params link and tags.
      * Used only for PUTing new picture in DB.
      * @param request
      * @param response
@@ -22,7 +23,7 @@ public class InsertNewPictureServlet extends HttpServlet{
      * @throws IOException
      */
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String link = request.getParameter("link");
         String tags = request.getParameter("tags");
@@ -30,7 +31,9 @@ public class InsertNewPictureServlet extends HttpServlet{
         response.setContentType("text/plain;charset=utf-8");
         response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 
-        if (link == null) {
+        UrlValidator validator = new UrlValidator();
+
+        if (link == null || validator.isValid(link)) {
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -50,12 +53,12 @@ public class InsertNewPictureServlet extends HttpServlet{
         }
 
 
-
         if (id_got != -1) {
 
             response.getWriter().print(id_got);
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
+
             response.getWriter().print("Error occurred during SQL insertion. Couldn't insert these values.");
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
         }

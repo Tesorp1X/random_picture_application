@@ -1,23 +1,19 @@
 package dbService;
 
 
+import configurator.Configurator;
 import dbService.dao.PictureDAO;
 import dbService.dataSets.PicturesDataSet;
+
 import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.Query;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
 
-import javax.persistence.Table;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Random;
-import java.util.Random.*;
+
 
 
 public class DBService {
@@ -33,28 +29,35 @@ public class DBService {
     }
 
     private Configuration getMySqlConfiguration() {
+
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(PicturesDataSet.class);
 
+        Configurator configurator = new Configurator("mysql.conf");
+
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://72.11.215.129:3306/RandomImages");
-        configuration.setProperty("hibernate.connection.username", "tully");
-        configuration.setProperty("hibernate.connection.password", "tully");
+        configuration.setProperty("hibernate.connection.url", configurator.getUrl());
+        configuration.setProperty("hibernate.connection.username", configurator.getUser());
+        configuration.setProperty("hibernate.connection.password", configurator.getPassword());
         configuration.setProperty("hibernate.show_sql", hibernate_show_sql);
         configuration.setProperty("hibernate.hbm2ddl.auto", hibernate_hbm2ddl_auto);
+
         return configuration;
     }
 
     private Configuration getH2Configuration() {
+
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(PicturesDataSet.class);
 
+        Configurator configurator = new Configurator("h2.conf");
+
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         configuration.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:h2:mem:h2db");
-        configuration.setProperty("hibernate.connection.username", "tully");
-        configuration.setProperty("hibernate.connection.password", "tully");
+        configuration.setProperty("hibernate.connection.url", configurator.getUrl());
+        configuration.setProperty("hibernate.connection.username", configurator.getUser());
+        configuration.setProperty("hibernate.connection.password", configurator.getPassword());
         configuration.setProperty("hibernate.show_sql", hibernate_show_sql);
         configuration.setProperty("hibernate.hbm2ddl.auto", hibernate_hbm2ddl_auto);
 
@@ -67,16 +70,17 @@ public class DBService {
 
             Session session = sessionFactory.openSession();
             PictureDAO dao = new PictureDAO(session);
-            PicturesDataSet dataSet = dao.getRandom();
 
-            return dataSet;
+            return dao.getRandom();
 
         } catch (HibernateException e) {
+
             throw new DBException(e);
         }
     }
 
     public PicturesDataSet getPictureById(long id) throws DBException {
+
         try {
 
             Session session = sessionFactory.openSession();

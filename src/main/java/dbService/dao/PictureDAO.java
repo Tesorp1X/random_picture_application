@@ -34,6 +34,7 @@ public class PictureDAO {
                                     .uniqueResult();
     }
 
+    //TODO: implement getList() and deleteById()
 
     public long getPictureId(String name) throws HibernateException {
 

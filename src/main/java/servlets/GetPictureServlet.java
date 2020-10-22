@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Writer;
 
 
 public class GetPictureServlet extends HttpServlet {
@@ -29,11 +28,36 @@ public class GetPictureServlet extends HttpServlet {
         DBService dbService = new DBService();
         dbService.printConnectInfo();
 
+        response.setContentType("text/plain;charset=utf-8");
+        response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+
+        String method = request.getParameter("method");
+        long id = -1;
+
+        if (method != null) {
+            String id_str = request.getParameter("id");
+            if (id_str == null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+            id = Long.parseLong(id_str);
+        }
+
+
         String link = "";
 
         try {
 
-            PicturesDataSet dataSet = dbService.getRandomPicture();
+            PicturesDataSet dataSet;
+
+            if (method == null || method.equals("random")) {
+                dataSet = dbService.getRandomPicture();
+            } else if (id != -1) {
+                dataSet = dbService.getPictureById(id);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
 
 
             if (dataSet == null) {
@@ -48,14 +72,13 @@ public class GetPictureServlet extends HttpServlet {
 
         } catch (DBException e) {
 
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             e.printStackTrace();
         }
 
 
-        response.setContentType("text/plain;charset=utf-8");
         response.getWriter().print(link);
 
-        response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setStatus(HttpServletResponse.SC_OK);
 
     }
