@@ -3,18 +3,22 @@ package main;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+
 import servlets.GetPictureServlet;
-import dbService.DBException;
-import dbService.DBService;
-import dbService.dataSets.PicturesDataSet;
 import servlets.InsertNewPictureServlet;
+
+import dbService.DBService;
+
+
 
 
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        GetPictureServlet getPictureServlet = new GetPictureServlet();
-        InsertNewPictureServlet insertNewPictureServlet = new InsertNewPictureServlet();
+        DBService dbService = new DBService();
+
+        GetPictureServlet getPictureServlet = new GetPictureServlet(dbService);
+        InsertNewPictureServlet insertNewPictureServlet = new InsertNewPictureServlet(dbService);
 
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);

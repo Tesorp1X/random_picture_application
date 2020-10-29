@@ -13,6 +13,12 @@ import java.io.IOException;
 
 public class GetPictureServlet extends HttpServlet {
 
+    private final DBService dbService;
+
+    public GetPictureServlet(DBService dbService) {
+        this.dbService = dbService;
+    }
+
     /**
      * Handles GET requests on /getPicture and "returns" random picture link from sql.
      * Used only for GETing link from DB.
@@ -22,10 +28,9 @@ public class GetPictureServlet extends HttpServlet {
      * @throws IOException
      */
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
-        DBService dbService = new DBService();
         dbService.printConnectInfo();
 
         response.setContentType("text/plain;charset=utf-8");

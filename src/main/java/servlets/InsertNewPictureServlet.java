@@ -14,6 +14,12 @@ import java.io.IOException;
 
 public class InsertNewPictureServlet extends HttpServlet{
 
+    private final DBService dbService;
+
+    public InsertNewPictureServlet(DBService dbService) {
+        this.dbService = dbService;
+    }
+
     /**
      *Handles GET requests on /insertPicture with params link and tags.
      * Used only for PUTing new picture in DB.
@@ -23,7 +29,7 @@ public class InsertNewPictureServlet extends HttpServlet{
      * @throws IOException
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String link = request.getParameter("link");
         String tags = request.getParameter("tags");
@@ -39,7 +45,6 @@ public class InsertNewPictureServlet extends HttpServlet{
             return;
         }
 
-        DBService dbService = new DBService();
         dbService.printConnectInfo();
         long id_got = -1;
 

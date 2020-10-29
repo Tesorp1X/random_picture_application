@@ -7,6 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import java.util.ArrayList;
+
 public class PictureDAO {
     private Session session;
 
@@ -35,12 +37,21 @@ public class PictureDAO {
     }
 
     //TODO: implement getList() and deleteById()
-
+    @SuppressWarnings("UnusedDeclaration")
     public long getPictureId(String name) throws HibernateException {
 
         Criteria criteria = session.createCriteria(PicturesDataSet.class);
 
         return ((PicturesDataSet) criteria.add(Restrictions.eq("name", name)).uniqueResult()).getId();
+    }
+
+    //TODO::getList
+    public ArrayList<PicturesDataSet> getList(long start_id, long amount) {
+
+        ArrayList<PicturesDataSet> result_list = new ArrayList<>();
+
+        
+        return result_list;
     }
 
 

@@ -45,7 +45,7 @@ public class DBService {
 
         return configuration;
     }
-
+    @SuppressWarnings("UnusedDeclaration")
     private Configuration getH2Configuration() {
 
         Configuration configuration = new Configuration();

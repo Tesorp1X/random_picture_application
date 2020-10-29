@@ -35,7 +35,7 @@ public class Configurator {
 
     }
 
-
+    //Getters
 
     public String getUrl() {
 

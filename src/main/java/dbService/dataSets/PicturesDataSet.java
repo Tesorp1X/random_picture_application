@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 
 @Entity
-@Table(name = "IMAGES")
+@Table(name = "images")
 public class PicturesDataSet implements Serializable { // Serializable Important to Hibernate!
     private static final long serialVersionUID = -8706689714326132798L;
 
@@ -17,7 +17,7 @@ public class PicturesDataSet implements Serializable { // Serializable Important
     @Column(name = "link", unique = true, updatable = false, nullable = false)
     private String link;
 
-    @Column(name = "tags", unique = false, updatable = true, nullable = true)
+    @Column(name = "tags")
     private String tags;
 
     //Important to Hibernate!
@@ -45,7 +45,7 @@ public class PicturesDataSet implements Serializable { // Serializable Important
         this.setId(id);
         this.setLink(link);
     }
-
+    @SuppressWarnings("UnusedDeclaration")
     public PicturesDataSet(String name) {
 
         this.setId(-1);
@@ -55,15 +55,15 @@ public class PicturesDataSet implements Serializable { // Serializable Important
     @SuppressWarnings("UnusedDeclaration")
     public String getTags() {
 
-        return tags.toString();
+        return tags;
     }
-
+    @SuppressWarnings("UnusedDeclaration")
     public void setTags(String tags) {
 
         this.tags = tags;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
+
     public String getLink() {
 
         return link;
