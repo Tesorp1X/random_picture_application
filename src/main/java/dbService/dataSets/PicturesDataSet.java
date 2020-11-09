@@ -5,13 +5,13 @@ import java.io.Serializable;
 
 
 @Entity
-@Table(name = "images")
+@Table(name = "IMAGES")
 public class PicturesDataSet implements Serializable { // Serializable Important to Hibernate!
     private static final long serialVersionUID = -8706689714326132798L;
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(name = "link", unique = true, updatable = false, nullable = false)
@@ -87,9 +87,9 @@ public class PicturesDataSet implements Serializable { // Serializable Important
     @Override
     public String toString() {
 
-        return "PictureDataSet{" +
-                "id=" + id +
-                ", name='" + link + '\'' +
-                '}';
+        return "PictureDataSet { " +
+                "id = " + id +
+                " link = " + link  +
+                " tags : " + tags + " }";
     }
 }

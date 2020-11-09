@@ -1,74 +1,103 @@
 package dbService.dao;
 
+import dbService.EmptyTableException;
 import dbService.dataSets.PicturesDataSet;
-import org.hibernate.Criteria;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 
-import java.util.ArrayList;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import java.util.List;
+import java.util.Random;
 
 public class PictureDAO {
-    private Session session;
+
+    private final Session session;
 
     public PictureDAO(Session session) {
         this.session = session;
     }
 
 
-    public PicturesDataSet get(long id) throws HibernateException {
+    public PicturesDataSet getPictureById(long id) {
 
-        return (PicturesDataSet) session.get(PicturesDataSet.class, id);
+        return session.get(PicturesDataSet.class, id);
     }
 
 
-    public PicturesDataSet getRandom() throws HibernateException {
+    public PicturesDataSet getRandom() throws EmptyTableException {
 
-        Criteria criteria = session.createCriteria(PicturesDataSet.class);
-        long leftLimit = 1L;
-        long rightLimit = this.getLastPictureId();
-        long row_id = leftLimit + (long) (Math.random() * (rightLimit - leftLimit));
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cqCount = cb.createQuery(Long.class);
+        Root<PicturesDataSet> picturesCountRoot = cqCount.from(PicturesDataSet.class);
 
-        return (PicturesDataSet) criteria
-                                    .add(Restrictions
-                                    .idEq(row_id))
-                                    .uniqueResult();
+        cqCount.select(cb.count(picturesCountRoot));
+        int count = session.createQuery(cqCount).getSingleResult().intValue();
+
+        if (count != 0) {
+            int index = new Random().nextInt(count);
+
+            CriteriaQuery<PicturesDataSet> cqPicture = cb.createQuery(PicturesDataSet.class);
+            Root<PicturesDataSet> picturesRoot = cqPicture.from(PicturesDataSet.class);
+            CriteriaQuery<PicturesDataSet> random = cqPicture.select(picturesRoot);
+
+            TypedQuery<PicturesDataSet> randomQuery = session.createQuery(random).setFirstResult(index).setMaxResults(1);
+
+            return randomQuery.getSingleResult();
+
+        } else {
+
+            throw new EmptyTableException("No pictures were found in DB.");
+        }
+
     }
 
-    //TODO: implement getList() and deleteById()
-    @SuppressWarnings("UnusedDeclaration")
-    public long getPictureId(String name) throws HibernateException {
 
-        Criteria criteria = session.createCriteria(PicturesDataSet.class);
+    private List<PicturesDataSet> getListOfPictures_(int start_point, int max_result) {
 
-        return ((PicturesDataSet) criteria.add(Restrictions.eq("name", name)).uniqueResult()).getId();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<PicturesDataSet> cqPicture = cb.createQuery(PicturesDataSet.class);
+        Root<PicturesDataSet> picturesRoot = cqPicture.from(PicturesDataSet.class);
+        CriteriaQuery<PicturesDataSet> all = cqPicture.select(picturesRoot);
+        TypedQuery<PicturesDataSet> allQuery = session.createQuery(all);
+
+        if (max_result != -1) {
+            allQuery.setFirstResult(start_point).setMaxResults(max_result);
+        }
+
+        return allQuery.getResultList();
+
     }
 
-    //TODO::getList
-    public ArrayList<PicturesDataSet> getList(long start_id, long amount) {
+    public List<PicturesDataSet> getListOfPictures() {
 
-        ArrayList<PicturesDataSet> result_list = new ArrayList<>();
-
-        
-        return result_list;
+        return getListOfPictures_(-1, -1);
     }
 
+    public List<PicturesDataSet> getListOfPictures(int start_point, int max_result) {
+
+        return getListOfPictures_(start_point, max_result);
+    }
 
     public long insertPicture(String link, String tags) throws HibernateException {
 
         return (Long) session.save(new PicturesDataSet(link, tags));
     }
 
+    public boolean deletePictureById(long id) {
 
-    protected Long getLastPictureId() {
+        PicturesDataSet picture = getPictureById(id);
 
-        Criteria criteria = session.createCriteria(PicturesDataSet.class);
+        if (picture != null) {
+            session.delete(picture);
+            return true;
+        }
 
-
-        Object _count = criteria.setProjection(Projections.count("id")).uniqueResult();
-
-        return (Long) _count;
+        return false;
     }
 
 }

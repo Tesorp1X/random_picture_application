@@ -1,7 +1,8 @@
 package servlets;
 
-import dbService.DBException;
 import dbService.DBService;
+import dbService.EmptyTableException;
+import dbService.NotFoundException;
 import dbService.dataSets.PicturesDataSet;
 
 import javax.servlet.ServletException;
@@ -16,6 +17,7 @@ public class GetPictureServlet extends HttpServlet {
     private final DBService dbService;
 
     public GetPictureServlet(DBService dbService) {
+
         this.dbService = dbService;
     }
 
@@ -31,35 +33,30 @@ public class GetPictureServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
-        dbService.printConnectInfo();
-
         response.setContentType("text/plain;charset=utf-8");
         response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 
         String method = request.getParameter("method");
-        long id = -1;
-
-        if (method != null) {
-            String id_str = request.getParameter("id");
-            if (id_str == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-            id = Long.parseLong(id_str);
-        }
+        long id;
 
 
         String link = "";
+        String id_str = request.getParameter("id");
 
         try {
 
             PicturesDataSet dataSet;
 
             if (method == null || method.equals("random")) {
+
                 dataSet = dbService.getRandomPicture();
-            } else if (id != -1) {
+
+            } else if (id_str != null && id_str.matches("\\d+")) {
+                id = Long.parseLong(id_str);
                 dataSet = dbService.getPictureById(id);
+
             } else {
+                response.getWriter().println("ERROR: id must be an positive integer or use random method.");
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
@@ -75,15 +72,13 @@ public class GetPictureServlet extends HttpServlet {
             }
 
 
-        } catch (DBException e) {
-
+        } catch (EmptyTableException | NotFoundException e) {
+            response.getWriter().print(e.toString());
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            e.printStackTrace();
+
         }
 
-
         response.getWriter().print(link);
-
         response.setStatus(HttpServletResponse.SC_OK);
 
     }

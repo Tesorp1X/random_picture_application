@@ -2,28 +2,28 @@ package dbService;
 
 
 import configurator.Configurator;
+
 import dbService.dao.PictureDAO;
 import dbService.dataSets.PicturesDataSet;
 
 import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 
 
 public class DBService {
+
     private static final String hibernate_show_sql = "true";
     private static final String hibernate_hbm2ddl_auto = "none";
 
     private final SessionFactory sessionFactory;
 
     public DBService() {
-        //Configuration configuration = getH2Configuration();
         Configuration configuration = getMySqlConfiguration();
         sessionFactory = createSessionFactory(configuration);
     }
@@ -45,55 +45,37 @@ public class DBService {
 
         return configuration;
     }
-    @SuppressWarnings("UnusedDeclaration")
-    private Configuration getH2Configuration() {
 
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(PicturesDataSet.class);
 
-        Configurator configurator = new Configurator("h2.conf");
 
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        configuration.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
-        configuration.setProperty("hibernate.connection.url", configurator.getUrl());
-        configuration.setProperty("hibernate.connection.username", configurator.getUser());
-        configuration.setProperty("hibernate.connection.password", configurator.getPassword());
-        configuration.setProperty("hibernate.show_sql", hibernate_show_sql);
-        configuration.setProperty("hibernate.hbm2ddl.auto", hibernate_hbm2ddl_auto);
+    public PicturesDataSet getRandomPicture() throws  EmptyTableException {
 
-        return configuration;
+        Session session = sessionFactory.openSession();
+        PictureDAO dao = new PictureDAO(session);
+
+        return dao.getRandom();
+
     }
 
+    public PicturesDataSet getPictureById(long id) throws NotFoundException, IndexOutOfBoundsException {
 
-    public PicturesDataSet getRandomPicture() throws DBException {
-        try {
-
-            Session session = sessionFactory.openSession();
-            PictureDAO dao = new PictureDAO(session);
-
-            return dao.getRandom();
-
-        } catch (HibernateException e) {
-
-            throw new DBException(e);
+        if (id < 0) {
+            throw new IndexOutOfBoundsException(String.valueOf(id));
         }
-    }
-
-    public PicturesDataSet getPictureById(long id) throws DBException {
 
         try {
 
             Session session = sessionFactory.openSession();
             PictureDAO dao = new PictureDAO(session);
 
-            return dao.get(id);
+            return dao.getPictureById(id);
 
         } catch (HibernateException e) {
-            throw new DBException(e);
+            throw new NotFoundException(String.valueOf(id));
         }
     }
 
-    public long addPicture(String url, String tags) throws DBException {
+    public long addPicture(String url, String tags) {
 
         try {
             Session session = sessionFactory.openSession();
@@ -106,25 +88,44 @@ public class DBService {
             return id;
 
         } catch (HibernateException e) {
-            throw new DBException(e);
+            return -1;
         }
 
     }
 
-    public void printConnectInfo() {
-        try {
+    public void deletePictureById(long id) throws NotFoundException {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        PictureDAO dao = new PictureDAO(session);
 
-            SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
-            Connection connection = sessionFactoryImpl.getConnectionProvider().getConnection();
-            System.out.println("DB name: " + connection.getMetaData().getDatabaseProductName());
-            System.out.println("DB version: " + connection.getMetaData().getDatabaseProductVersion());
-            System.out.println("Driver: " + connection.getMetaData().getDriverName());
-            System.out.println("Autocommit: " + connection.getAutoCommit());
+        boolean is_deleted = dao.deletePictureById(id);
+        transaction.commit();
+        session.close();
 
-        } catch (SQLException e) {
+        if (!is_deleted) {
 
-            e.printStackTrace();
+            throw new NotFoundException(String.valueOf(id));
         }
+    }
+
+    public List<PicturesDataSet> getListOfPictures() {
+        Session session = sessionFactory.openSession();
+        PictureDAO dao = new PictureDAO(session);
+
+        List<PicturesDataSet> result_list = dao.getListOfPictures();
+        session.close();
+
+        return new LinkedList<>(result_list);
+    }
+
+    public List<PicturesDataSet> getListOfPictures(int start_point, int max_result) {
+        Session session = sessionFactory.openSession();
+        PictureDAO dao = new PictureDAO(session);
+
+        List<PicturesDataSet> result_list = dao.getListOfPictures(start_point, max_result);
+        session.close();
+
+        return new LinkedList<>(result_list);
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {

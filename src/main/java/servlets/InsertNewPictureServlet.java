@@ -1,8 +1,6 @@
 package servlets;
 
-import dbService.DBException;
 import dbService.DBService;
-import dbService.dataSets.PicturesDataSet;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import javax.servlet.ServletException;
@@ -39,23 +37,15 @@ public class InsertNewPictureServlet extends HttpServlet{
 
         UrlValidator validator = new UrlValidator();
 
-        if (link == null || validator.isValid(link)) {
+        if (link == null || !validator.isValid(link)) {
 
+            response.getWriter().print("ERROR: you should use valid links.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        dbService.printConnectInfo();
-        long id_got = -1;
 
-        try {
-
-            id_got = dbService.addPicture(link, tags);
-
-        } catch (DBException e) {
-
-            e.printStackTrace();
-        }
+        long id_got = dbService.addPicture(link, tags);
 
 
         if (id_got != -1) {
@@ -65,7 +55,7 @@ public class InsertNewPictureServlet extends HttpServlet{
         } else {
 
             response.getWriter().print("Error occurred during SQL insertion. Couldn't insert these values.");
-            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
     }
