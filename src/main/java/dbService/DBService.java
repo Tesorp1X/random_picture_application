@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-
 public class DBService {
 
     private static final String hibernate_show_sql = "true";
@@ -33,13 +32,15 @@ public class DBService {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(PicturesDataSet.class);
 
-        Configurator configurator = new Configurator("mysql.conf");
+
+        Configurator configurator = new Configurator("//home//half-as-admin//mysql.conf");
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
         configuration.setProperty("hibernate.connection.url", configurator.getUrl());
         configuration.setProperty("hibernate.connection.username", configurator.getUser());
         configuration.setProperty("hibernate.connection.password", configurator.getPassword());
+
         configuration.setProperty("hibernate.show_sql", hibernate_show_sql);
         configuration.setProperty("hibernate.hbm2ddl.auto", hibernate_hbm2ddl_auto);
 
@@ -47,13 +48,26 @@ public class DBService {
     }
 
 
-
-    public PicturesDataSet getRandomPicture() throws  EmptyTableException {
+    public PicturesDataSet getRandomPicture() throws EmptyTableException {
 
         Session session = sessionFactory.openSession();
         PictureDAO dao = new PictureDAO(session);
+        PicturesDataSet result;
 
-        return dao.getRandom();
+        try {
+
+            result = dao.getRandom();
+
+        } catch (EmptyTableException e) {
+            throw e;
+
+        } finally {
+
+            session.close();
+
+        }
+
+        return result;
 
     }
 
@@ -63,16 +77,18 @@ public class DBService {
             throw new IndexOutOfBoundsException(String.valueOf(id));
         }
 
-        try {
+        Session session = sessionFactory.openSession();
+        PictureDAO dao = new PictureDAO(session);
 
-            Session session = sessionFactory.openSession();
-            PictureDAO dao = new PictureDAO(session);
+        PicturesDataSet result = dao.getPictureById(id);
+        session.close();
 
-            return dao.getPictureById(id);
+        if (result == null) {
 
-        } catch (HibernateException e) {
             throw new NotFoundException(String.valueOf(id));
         }
+
+        return result;
     }
 
     public long addPicture(String url, String tags) {

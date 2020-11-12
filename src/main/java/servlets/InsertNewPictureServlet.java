@@ -29,15 +29,17 @@ public class InsertNewPictureServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String link = request.getParameter("link");
+        String link_ = request.getParameter("link");
         String tags = request.getParameter("tags");
+        String link = link_ != null ? link_.replace("\"" , "") : null;
 
         response.setContentType("text/plain;charset=utf-8");
         response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 
         UrlValidator validator = new UrlValidator();
 
-        if (link == null || !validator.isValid(link)) {
+
+        if (link == null) {
 
             response.getWriter().print("ERROR: you should use valid links.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

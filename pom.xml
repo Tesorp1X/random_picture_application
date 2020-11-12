@@ -6,7 +6,7 @@
 
     <groupId>RandomPic</groupId>
     <artifactId>RandomPicktureApp</artifactId>
-    <version>1.0</version>
+    <version>1.2</version>
 
     <build>
         <plugins>
@@ -29,7 +29,7 @@
                     </descriptorRefs>
 
                     <outputDirectory>${basedir}</outputDirectory>
-                    <finalName>RandomPicServer</finalName>
+                    <finalName>RandomPicServer.v1.2</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
