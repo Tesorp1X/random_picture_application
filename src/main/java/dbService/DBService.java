@@ -3,6 +3,7 @@ package dbService;
 
 import configurator.Configurator;
 
+import configurator.ConfiguratorException;
 import dbService.dao.PictureDAO;
 import dbService.dataSets.PicturesDataSet;
 
@@ -22,18 +23,18 @@ public class DBService {
 
     private final SessionFactory sessionFactory;
 
-    public DBService() {
+    public DBService() throws ConfiguratorException {
         Configuration configuration = getMySqlConfiguration();
         sessionFactory = createSessionFactory(configuration);
     }
 
-    private Configuration getMySqlConfiguration() {
+    private Configuration getMySqlConfiguration() throws ConfiguratorException {
 
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(PicturesDataSet.class);
 
 
-        Configurator configurator = new Configurator("//home//half-as-admin//mysql.conf");
+        Configurator configurator = new Configurator();
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");

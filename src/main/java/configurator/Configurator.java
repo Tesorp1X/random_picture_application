@@ -1,35 +1,42 @@
 package configurator;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Use to set of connection data from environmental variables.
+ * File must contain those fields: CONNECT_URL, CONNECT_USER, CONNECT_PASSWORD.
+ * @author Tesorp1X
+ */
 public class Configurator {
 
-    private String CONNECT_URL;
+    private final String CONNECTION_URL;
 
-    private String CONNECT_USER;
+    private final String CONNECTION_USER;
 
-    private String CONNECT_PASSWORD;
+    private final String CONNECTION_PASSWORD;
 
 
-    public Configurator(String pathname) {
+    /**
+     * ENVs should be CONNECTION_URL, CONNECTION_USER, CONNECTION_PASSWORD.
+     */
+    public Configurator() throws ConfiguratorException {
 
         Properties props = new Properties();
 
         try {
 
-            props.load(new FileInputStream(new File(pathname)));
+            CONNECTION_URL = System.getenv("CONNECTION_URL");
 
-            CONNECT_URL = props.getProperty("CONNECT_URL");
+            CONNECTION_USER = System.getenv("CONNECTION_USER");
 
-            CONNECT_USER = props.getProperty("CONNECT_USER");
+            CONNECTION_PASSWORD = System.getenv("CONNECTION_PASSWORD");
 
-            CONNECT_PASSWORD = props.getProperty("CONNECT_PASSWORD");
 
-        } catch (IOException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
+
+            System.err.println("ERROR OCCURRED : " + e.getMessage());
             e.printStackTrace();
+            throw new ConfiguratorException(e);
         }
 
 
@@ -39,17 +46,17 @@ public class Configurator {
 
     public String getUrl() {
 
-        return CONNECT_URL;
+        return CONNECTION_URL;
     }
 
     public String getUser() {
 
-        return CONNECT_USER;
+        return CONNECTION_USER;
     }
 
     public String getPassword() {
 
-        return CONNECT_PASSWORD;
+        return CONNECTION_PASSWORD;
     }
 
 }
